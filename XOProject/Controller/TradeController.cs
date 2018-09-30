@@ -43,7 +43,40 @@ namespace XOProject.Controller
         public async Task<IActionResult> GetAnalysis([FromRoute]string symbol)
         {
             var result = new List<TradeAnalysis>();
-            
+             TradeAnalysis ta = new TradeAnalysis();
+            var tradeBuy = _tradeRepository.Query().Where(x => x.Symbol.Equals(symbol) && x.Action.Equals("BUY"));
+            var tradeSell = _tradeRepository.Query().Where(x => x.Symbol.Equals(symbol) && x.Action.Equals("SELL"));
+
+            List<int> trdNoSBuy = new List<int>();
+            List<int> trdNoSSell = new List<int>();
+
+            foreach (var t in tradeBuy)
+            {
+                trdNoSBuy.Add(t.NoOfShares);
+            }
+            foreach (var t in tradeSell)
+            {
+                trdNoSSell.Add(t.NoOfShares);
+            }
+            if (!trdNoSBuy.Count.Equals(0))
+            {
+                ta.Maximum = trdNoSBuy.Max();
+                ta.Minimum = trdNoSBuy.Min();
+                ta.Sum = trdNoSBuy.Sum();
+                ta.Average = trdNoSBuy.Average();
+                ta.Action = "BUY";
+                result.Add(ta);
+            }
+            ta = new TradeAnalysis();
+            if (!trdNoSSell.Count.Equals(0))
+            {
+                ta.Maximum = trdNoSSell.Max();
+                ta.Minimum = trdNoSSell.Min();
+                ta.Sum = trdNoSSell.Sum();
+                ta.Average = trdNoSSell.Average();
+                ta.Action = "SELL";
+                result.Add(ta);
+            }
             return Ok(result);
         }
 
